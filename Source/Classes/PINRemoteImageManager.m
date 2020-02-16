@@ -311,7 +311,7 @@ static dispatch_once_t sharedDispatchToken;
             return [NSKeyedUnarchiver unarchiveObjectWithData:data];
         }
         return data;
-    } keyEncoder:nil keyDecoder:nil ttlCache:enableTtl];
+    } keyEncoder:nil keyDecoder:nil ttlCache:enableTtl diskOnly:NO];
 
     return pinCache;
 #else

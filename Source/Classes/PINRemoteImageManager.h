@@ -587,6 +587,18 @@ typedef void(^PINRemoteImageManagerMetrics)(NSURL  * __nonnull url, NSURLSession
  @return returns an NSString which is the key used for caching.
  */
 - (nonnull NSString *)cacheKeyForURL:(nonnull NSURL *)url processorKey:(nullable NSString *)processorKey;
+    
+/**
+ Returns the cacheKey for a given URL and processorKey. Exposed to be overridden if   necessary or to be used with imageFromCacheWithCacheKey
+ @see imageFromCacheWithCacheKey:completion:
+
+ @param url NSURL that was used to download image
+ @param processorKey An optional key to uniquely identify the processor used to   post-process the downloaded image.
+ @param resume Indicates the cacheKey is used for resume data saving
+
+ @return returns an NSString which is the key used for caching.
+*/
+- (nonnull NSString *)cacheKeyForURL:(nonnull NSURL *)url processorKey:(nullable NSString *)processorKey resume:(BOOL)resume;
 
 /**
  @see imageFromCacheWithURL:processorKey:options:completion:
