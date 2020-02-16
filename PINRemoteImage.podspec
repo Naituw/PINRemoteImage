@@ -19,9 +19,10 @@ Pod::Spec.new do |s|
 
   ios_deployment = "8.0"
   tvos_deployment = "9.0"
-  osx_deployment = "10.11"
+  osx_deployment = "10.10"
   s.ios.deployment_target = ios_deployment
   s.tvos.deployment_target = tvos_deployment
+  s.osx.deployment_target = osx_deployment
   s.requires_arc = true
   
   s.default_subspecs = 'PINCache'
