@@ -132,6 +132,24 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image) {
 #endif
 }
 
++ (CGColorSpaceRef)pin_imageDecodingColorSpace
+{
+#if PIN_TARGET_MAC
+    // use screen's colorSpace to prevent CA covert colorspace when preparing texture on main thread
+    CGColorSpaceRef screenColorSpace = NSScreen.mainScreen.colorSpace.CGColorSpace;
+    if (screenColorSpace) {
+        return screenColorSpace;
+    }
+#endif
+    
+    static CGColorSpaceRef colorSpace;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        colorSpace = CGColorSpaceCreateDeviceRGB();
+    });
+    return colorSpace;
+}
+
 + (CGImageRef)pin_decodedImageRefWithCGImageRef:(CGImageRef)imageRef
 {
     BOOL opaque = YES;
@@ -143,17 +161,14 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image) {
     CGSize imageSize = CGSizeMake(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef));
     
     CGBitmapInfo info = opaque ? (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host) : (kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host);
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
     
     //Use UIGraphicsBeginImageContext parameters from docs: https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIKitFunctionReference/#//apple_ref/c/func/UIGraphicsBeginImageContextWithOptions
     CGContextRef ctx = CGBitmapContextCreate(NULL, imageSize.width, imageSize.height,
                                              8,
                                              0,
-                                             colorspace,
+                                             [self pin_imageDecodingColorSpace],
                                              info);
-    
-    CGColorSpaceRelease(colorspace);
-    
+        
     if (ctx) {
         CGContextSetBlendMode(ctx, kCGBlendModeCopy);
         CGContextDrawImage(ctx, CGRectMake(0, 0, imageSize.width, imageSize.height), imageRef);
