@@ -171,7 +171,17 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image) {
         
     if (ctx) {
         CGContextSetBlendMode(ctx, kCGBlendModeCopy);
+        
+#if PIN_TARGET_MAC
+        CGSize tileSize = CGSizeMake(8000, 8000);
+        if (imageSize.width > tileSize.width || imageSize.height > tileSize.height) {
+            [self pin_tiledDrawCGImageRef:imageRef size:imageSize context:ctx tileSize:tileSize];
+        } else {
+            CGContextDrawImage(ctx, CGRectMake(0, 0, imageSize.width, imageSize.height), imageRef);
+        }
+#else
         CGContextDrawImage(ctx, CGRectMake(0, 0, imageSize.width, imageSize.height), imageRef);
+#endif
         
         CGImageRef decodedImageRef = CGBitmapContextCreateImage(ctx);
         if (decodedImageRef) {
@@ -184,6 +194,30 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image) {
     
     return imageRef;
 }
+
+#if PIN_TARGET_MAC
++ (void)pin_tiledDrawCGImageRef:(CGImageRef)imageRef size:(CGSize)imageSize context:(CGContextRef)context tileSize:(CGSize)tileSize
+{
+    NSInteger tilesPerRow = ceil(imageSize.width / tileSize.width);
+    NSInteger tilesPerCol = ceil(imageSize.height / tileSize.height);
+    
+    for (NSInteger row = 0; row < tilesPerCol; row++) {
+        for (NSInteger col = 0; col < tilesPerRow; col++) {
+            CGRect rect = CGRectMake(col * tileSize.width, row * tileSize.height, tileSize.width, tileSize.height);
+            if (col == tilesPerRow - 1) {
+                rect.size.width = imageSize.width - rect.origin.x;
+            }
+            if (row == tilesPerCol - 1) {
+                rect.size.height = imageSize.height - rect.origin.y;
+            }
+            
+            CGImageRef imageTileRef = CGImageCreateWithImageInRect(imageRef, rect);
+            rect.origin.y = imageSize.height - rect.origin.y - rect.size.height;
+            CGContextDrawImage(context, rect, imageTileRef);
+        }
+    }
+}
+#endif
 
 #if PIN_TARGET_IOS
 UIImageOrientation pin_UIImageOrientationFromImageSource(CGImageSourceRef imageSourceRef) {
