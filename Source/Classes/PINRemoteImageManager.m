@@ -1150,7 +1150,7 @@ static dispatch_once_t sharedDispatchToken;
     CFTimeInterval requestTime = CACurrentMediaTime();
     
     if ((PINRemoteImageManagerDownloadOptionsSkipEarlyCheck & options) == NO && [NSThread isMainThread]) {
-        PINRemoteImageManagerResult *result = [self synchronousImageFromCacheWithURL:url processorKey:processorKey cacheKey:cacheKey options:options];
+        PINRemoteImageManagerResult *result = [self synchronousImageFromCacheWithURL:url processorKey:processorKey cacheKey:cacheKey diskCache:NO options:options];
         if (result.image && result.error == nil) {
             completion((result));
             return;
@@ -1179,15 +1179,20 @@ static dispatch_once_t sharedDispatchToken;
 
 - (PINRemoteImageManagerResult *)synchronousImageFromCacheWithCacheKey:(NSString *)cacheKey options:(PINRemoteImageManagerDownloadOptions)options
 {
-    return [self synchronousImageFromCacheWithURL:nil processorKey:nil cacheKey:cacheKey options:options];
+    return [self synchronousImageFromCacheWithURL:nil processorKey:nil cacheKey:cacheKey diskCache:NO options:options];
 }
 
 - (nonnull PINRemoteImageManagerResult *)synchronousImageFromCacheWithURL:(NSURL *)url processorKey:(nullable NSString *)processorKey options:(PINRemoteImageManagerDownloadOptions)options
 {
-    return [self synchronousImageFromCacheWithURL:url processorKey:processorKey cacheKey:nil options:options];
+    return [self synchronousImageFromCacheWithURL:url processorKey:processorKey cacheKey:nil diskCache:NO options:options];
 }
 
-- (PINRemoteImageManagerResult *)synchronousImageFromCacheWithURL:(NSURL *)url processorKey:(NSString *)processorKey cacheKey:(NSString *)cacheKey options:(PINRemoteImageManagerDownloadOptions)options
+- (nonnull PINRemoteImageManagerResult *)synchronousImageFromDiskCacheWithURL:(nonnull NSURL *)url processorKey:(nullable NSString *)processorKey options:(PINRemoteImageManagerDownloadOptions)options
+{
+    return [self synchronousImageFromCacheWithURL:url processorKey:processorKey cacheKey:nil diskCache:YES options:options];
+}
+
+- (PINRemoteImageManagerResult *)synchronousImageFromCacheWithURL:(NSURL *)url processorKey:(NSString *)processorKey cacheKey:(NSString *)cacheKey diskCache:(BOOL)diskCache options:(PINRemoteImageManagerDownloadOptions)options
 {
     CFTimeInterval requestTime = CACurrentMediaTime();
   
@@ -1198,6 +1203,9 @@ static dispatch_once_t sharedDispatchToken;
     cacheKey = cacheKey ?: [self cacheKeyForURL:url processorKey:processorKey];
     
     id object = [self.cache objectFromMemoryForKey:cacheKey];
+    if (!object && diskCache) {
+        object = [self.cache objectFromDiskForKey:cacheKey];
+    }
     PINImage *image;
     id alternativeRepresentation;
     NSError *error = nil;

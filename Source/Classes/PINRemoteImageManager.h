@@ -650,6 +650,8 @@ typedef void(^PINRemoteImageManagerMetrics)(NSURL  * __nonnull url, NSURLSession
  @return A PINRemoteImageManagerResult
  */
 - (nonnull PINRemoteImageManagerResult *)synchronousImageFromCacheWithURL:(nonnull NSURL *)url processorKey:(nullable NSString *)processorKey options:(PINRemoteImageManagerDownloadOptions)options;
+    
+- (nonnull PINRemoteImageManagerResult *)synchronousImageFromDiskCacheWithURL:(nonnull NSURL *)url processorKey:(nullable NSString *)processorKey options:(PINRemoteImageManagerDownloadOptions)options;
 
 /**
  Cancel a download. Canceling will only cancel the download if all other downloads are also canceled with their associated UUIDs. 
