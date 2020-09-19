@@ -6,6 +6,7 @@
 //
 
 #import "PINDisplayLink.h"
+#import <CoreVideo/CoreVideo.h>
 
 #if PIN_TARGET_MAC
 
