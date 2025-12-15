@@ -70,10 +70,10 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image) {
 
 + (PINImage *)pin_decodedImageWithData:(NSData *)data
 {
-    return [self pin_decodedImageWithData:data skipDecodeIfPossible:NO];
+    return [self pin_decodedImageWithData:data skipDecodeIfPossible:NO decodeToHDR:NO];
 }
 
-+ (PINImage *)pin_decodedImageWithData:(NSData *)data skipDecodeIfPossible:(BOOL)skipDecodeIfPossible
++ (PINImage *)pin_decodedImageWithData:(NSData *)data skipDecodeIfPossible:(BOOL)skipDecodeIfPossible decodeToHDR:(BOOL)decodeToHDR
 {
     if (data == nil) {
         return nil;
@@ -90,8 +90,22 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image) {
     CGImageSourceRef imageSourceRef = CGImageSourceCreateWithData((CFDataRef)data, NULL);
     
     if (imageSourceRef) {
-        CGImageRef imageRef = CGImageSourceCreateImageAtIndex(imageSourceRef, 0, (CFDictionaryRef)@{(NSString *)kCGImageSourceShouldCache : (NSNumber *)kCFBooleanFalse});
+        __auto_type options = [NSMutableDictionary dictionary];
+        options[(NSString *)kCGImageSourceShouldCache] = @NO;
+        if (decodeToHDR) {
+            if (@available(macOS 15.0, *)) {
+                options[(NSString *)kCGImageSourceDecodeRequest] = (NSString *)kCGImageSourceDecodeToHDR;
+            }
+        }
+        
+        CGImageRef imageRef = CGImageSourceCreateImageAtIndex(imageSourceRef, 0, (CFDictionaryRef)options);
         if (imageRef) {
+            if (@available(macOS 15.0, *)) {
+                if (!skipDecodeIfPossible && CGImageGetContentHeadroom(imageRef) > 1.0) {
+                    skipDecodeIfPossible = YES;
+                }
+            }
+
 #if PIN_TARGET_IOS
             UIImageOrientation orientation = pin_UIImageOrientationFromImageSource(imageSourceRef);
             if (skipDecodeIfPossible) {

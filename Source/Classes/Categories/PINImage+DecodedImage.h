@@ -34,7 +34,8 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image);
 @interface PINImage (PINDecodedImage)
 
 + (nullable PINImage *)pin_decodedImageWithData:(nonnull NSData *)data;
-+ (nullable PINImage *)pin_decodedImageWithData:(nonnull NSData *)data skipDecodeIfPossible:(BOOL)skipDecodeIfPossible;
++ (nullable PINImage *)pin_decodedImageWithData:(nonnull NSData *)data skipDecodeIfPossible:(BOOL)skipDecodeIfPossible decodeToHDR:(BOOL)decodeToHDR;
+
 + (nullable PINImage *)pin_decodedImageWithCGImageRef:(nonnull CGImageRef)imageRef;
 #if PIN_TARGET_IOS
 + (nullable PINImage *)pin_decodedImageWithCGImageRef:(nonnull CGImageRef)imageRef orientation:(UIImageOrientation) orientation;

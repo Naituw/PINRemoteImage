@@ -1429,6 +1429,7 @@ static dispatch_once_t sharedDispatchToken;
     }
     BOOL alternateRepresentationsAllowed = (PINRemoteImageManagerDisallowAlternateRepresentations & options) == 0;
     BOOL skipDecode = (options & PINRemoteImageManagerDownloadOptionsSkipDecode) != 0;
+    BOOL decodeToHDR = (options & PINRemoteImageManagerDownloadOptionsDecodeToHDR) != 0;
     __block id alternateRepresentation = nil;
     __block PINImage *image = nil;
     __block NSData *data = nil;
@@ -1471,7 +1472,7 @@ static dispatch_once_t sharedDispatchToken;
             image = container.image;
         }];
         if (image == nil && container.data) {
-            image = [PINImage pin_decodedImageWithData:container.data skipDecodeIfPossible:skipDecode];
+            image = [PINImage pin_decodedImageWithData:container.data skipDecodeIfPossible:skipDecode decodeToHDR:decodeToHDR];
             
             if (url != nil) {
                 image = [PINImage pin_scaledImageForImage:image withKey:key];

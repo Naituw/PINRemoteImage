@@ -72,7 +72,9 @@ typedef NS_OPTIONS(NSUInteger, PINRemoteImageManagerDownloadOptions) {
      * values and only makes HEAD requests to see if these headers are unchanged.
      * see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control and
      * https://tools.ietf.org/html/rfc7234*/
-    PINRemoteImageManagerDownloadOptionsIgnoreCacheControlHeaders = 1 << 6
+    PINRemoteImageManagerDownloadOptionsIgnoreCacheControlHeaders = 1 << 6,
+    
+    PINRemoteImageManagerDownloadOptionsDecodeToHDR = 1 << 7,
 };
 
 /**
