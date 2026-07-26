@@ -92,19 +92,23 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image) {
     if (imageSourceRef) {
         __auto_type options = [NSMutableDictionary dictionary];
         options[(NSString *)kCGImageSourceShouldCache] = @NO;
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 150000
         if (decodeToHDR) {
             if (@available(macOS 15.0, *)) {
                 options[(NSString *)kCGImageSourceDecodeRequest] = (NSString *)kCGImageSourceDecodeToHDR;
             }
         }
+#endif
         
         CGImageRef imageRef = CGImageSourceCreateImageAtIndex(imageSourceRef, 0, (CFDictionaryRef)options);
         if (imageRef) {
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 150000
             if (@available(macOS 15.0, *)) {
                 if (!skipDecodeIfPossible && CGImageGetContentHeadroom(imageRef) > 1.0) {
                     skipDecodeIfPossible = YES;
                 }
             }
+#endif
 
 #if PIN_TARGET_IOS
             UIImageOrientation orientation = pin_UIImageOrientationFromImageSource(imageSourceRef);
