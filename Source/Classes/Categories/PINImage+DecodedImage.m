@@ -92,6 +92,7 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image) {
     if (imageSourceRef) {
         __auto_type options = [NSMutableDictionary dictionary];
         options[(NSString *)kCGImageSourceShouldCache] = @NO;
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 150000
         if (decodeToHDR) {
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 150000
             if (@available(macOS 15.0, *)) {
@@ -99,6 +100,7 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image) {
             }
 #endif
         }
+#endif
         
         CGImageRef imageRef = CGImageSourceCreateImageAtIndex(imageSourceRef, 0, (CFDictionaryRef)options);
         if (imageRef) {
