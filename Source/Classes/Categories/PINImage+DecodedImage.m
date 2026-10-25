@@ -234,6 +234,7 @@ NSData * __nullable PINImagePNGRepresentation(PINImage * __nonnull image) {
             CGImageRef imageTileRef = CGImageCreateWithImageInRect(imageRef, rect);
             rect.origin.y = imageSize.height - rect.origin.y - rect.size.height;
             CGContextDrawImage(context, rect, imageTileRef);
+            CGImageRelease(imageTileRef);
         }
     }
 }
